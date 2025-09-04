@@ -5,48 +5,36 @@ require("./src/docs/Product.php");
 class Cart
 {
     private array $cartItems = [];
-    private array $products;
     private float $total = 0.0;
     private ?string $coupon = null;
 
-    // private function itemExists(int $productId)
-    // {
-    //     foreach ($this->cartItems as $item) {
-    //         if ($item["id_produto"] === $productId) {
-    //             return $item;
-    //         }
-    //     }
-    // }
-
-    public function addProduct(Product $product, int $quantity)
+    public function addProduct(Product $product, int $quantity): string
     {
         if ($product->getStock() < $quantity) {
-            return 'Estoque insuficiente.';
+            return "Estoque insuficiente para {$product->getName()}.";
         }
 
-        // $findedItem = $this->itemExists($product->getId());
-
-        // if ($findedItem) {
-        //     $product = $findedItem;
-        // }
-
-        $totalValue = $product->getPrice() * $quantity;
-
+        $subtotal = $product->getPrice() * $quantity;
         $product->reduceStock($quantity);
+
+        foreach ($this->cartItems as &$item) {
+            if ($item['id_produto'] === $product->getId()) {
+                $item['quantidade'] += $quantity;
+                $item['subtotal'] += $subtotal;
+                $this->total += $subtotal;
+                return "{$product->getName()} atualizado no carrinho.";
+            }
+        }
+
         $this->cartItems[] = [
             'id_produto' => $product->getId(),
+            'nome' => $product->getName(),
             'quantidade' => $quantity,
-            'subtotal' => $totalValue
+            'subtotal' => $subtotal
         ];
 
-        $this->total += $totalValue;
-
-        return 'Produto adicionado ao carrinho.';
-    }
-
-    public function returnTotal()
-    {
-        return ["ItemsCarrinho" => $this->cartItems, "PrecoTotal" => $this->total];
+        $this->total += $subtotal;
+        return "{$product->getName()} adicionado ao carrinho.";
     }
 }
 
@@ -58,5 +46,3 @@ $carrinho = new Cart();
 $carrinho->addProduct($banana, 5);
 $carrinho->addProduct($banana, 2);
 $carrinho->addProduct($morango, 2);
-
-print_r($carrinho->returnTotal());
