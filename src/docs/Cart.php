@@ -8,6 +8,12 @@ class Cart
     private float $total = 0.0;
     private ?string $coupon = null;
 
+    private array $coupons = [
+        "DESCONTO10" => 10,
+        "DESCONTO20" => 20,
+        "DESCONTO30" => 30
+    ];
+
     public function addProduct(Product $product, int $quantity): string
     {
         if ($product->getStock() < $quantity) {
@@ -53,9 +59,9 @@ class Cart
 
     public function applyCoupon(string $coupon): string
     {
-        if ($coupon === "DESCONTO10") {
+        if (isset($this->coupons[$coupon])) {
             $this->coupon = $coupon;
-            return "Cupom aplicado: 10% de desconto.";
+            return "Cupom aplicado: {$coupon} - {$this->coupons[$coupon]}% de desconto.";
         }
         return "Cupom inválido.";
     }
@@ -63,9 +69,12 @@ class Cart
     public function calculateTotal(): float
     {
         $total = $this->total;
-        if ($this->coupon === "DESCONTO10") {
-            $total *= 0.9;
+
+        if ($this->coupon) {
+            $desconto = $this->coupons[$this->coupon];
+            $total = $total - ($total * $desconto / 100);
         }
+
         return $total;
     }
 
@@ -73,7 +82,8 @@ class Cart
     {
         return [
             "ItensCarrinho" => $this->cartItems,
-            "Total" => $this->calculateTotal()
+            "Total" => $this->calculateTotal(),
+            "Cupom" => $this->coupon
         ];
     }
 }
