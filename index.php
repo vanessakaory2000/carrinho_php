@@ -17,6 +17,7 @@ $carrinho->removeProduct($uva);
 $carrinho->applyCoupon("DESCONTO10");
 
 $itens = $carrinho->listItems();
+$cupomAplicado = $itens["Cupom"];
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -52,6 +53,12 @@ $itens = $carrinho->listItems();
                 <td colspan="3" class="total">Total</td>
                 <td class="total">R$ <?= number_format($itens["Total"], 2, ',', '.') ?></td>
             </tr>
+            <?php if ($cupomAplicado): ?>
+                <tr>
+                    <td colspan="3" class="cupom">Cupom Aplicado</td>
+                    <td class="cupom"><?= $cupomAplicado ?> (Desconto aplicado)</td>
+                </tr>
+            <?php endif; ?>
         </tbody>
     </table>
 </body>
